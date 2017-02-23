@@ -69,14 +69,14 @@ class DatabaseConnection {
                 Boolean firstInsert = true
                 Map params = [:]
                 if ( name != '' ) {
-                    query += firstInsert ? ' name=:name' : ' AND name=:name'
-                    params.put( 'name', name )
+                    params.put( 'name', '%' + name + '%' )
+                    query += ' name=:name'
                     firstInsert = false
                 }
 
                 if ( date != '' ) {
-                    query += firstInsert ? ' date=:date' : ' AND date=:date'
                     params.put( 'date', date )
+                    query += firstInsert ? ' date=:date' : ' AND date=:date'
                 }
                 req = conn.rows( query, params )
             } else {
@@ -137,14 +137,14 @@ class DatabaseConnection {
                 Boolean firstInsert = true
                 query += ' WHERE'
                 if ( lastName != '' ) {
-                    params.put( 'lastName', lastName )
-                    query += firstInsert ? " lastname=:lastName" : " AND lastname=:lastName"
+                    params.put( 'lastName', '%' + lastName + '%' )
+                    query += " lastname LIKE :lastName"
                     firstInsert = false
                 }
 
                 if ( firstName != '' ) {
-                    params.put( 'firstName', firstName )
-                    query += firstInsert ? " firstname=:firstName" : " AND firstname=:firstName"
+                    params.put( 'firstName', '%' + firstName + '%' )
+                    query += firstInsert ? " firstname LIKE :firstName" : " AND firstname LIKE :firstName"
                     firstInsert = false
                 }
 
