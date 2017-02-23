@@ -18,9 +18,9 @@ import java.sql.SQLException
  */
 class DatabaseConnection {
     private static final String HOST = 'localhost'
-    private static final String CONN_USER = 'patrick.pingol'
+    private static final String CONN_USER = 'postgres'
     private static final String CONN_PASS = ''
-    private static final String DB = 'patrick.pingol'
+    private static final String DB = 'db_thirio'
     private static final SCHEMA = 'events'
     private static final String CONN_URL = "jdbc:postgresql://$HOST:5432/$DB"
     private static final String CONN_DRIVER = 'org.postgresql.Driver'
@@ -46,6 +46,7 @@ class DatabaseConnection {
         }
     }
 
+    //Event methods
     static Integer createEvent( Event event ) {
         Sql conn = connectSql()
         try {
@@ -127,9 +128,9 @@ class DatabaseConnection {
         }
     }
 
-    //TODO: Populate tbl_students using CSV file
-    static String cretaeStudents(){
-
+    //Stduent methods
+    static String createStudents() {
+        //TODO: Populate tbl_students using CSV file
     }
 
     static Student[] getStudentList( String lastName, String firstName, String college, String course ) {
@@ -184,6 +185,70 @@ class DatabaseConnection {
             conn.close()
 
             Student student = mapper.readValue( mapper.writeValueAsString( req ), Student.class )
+
+            student
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
+    }
+
+    //Register methods
+    static Student registerStudent( String studentId, Integer eventId ) {
+        Sql conn = connectSql()
+        try {
+            Student getTry = getStudentById( studentId )
+            if ( getTry == null )
+                throw new ThirioEventsException( 'Invalid Student ID.' )
+
+            String query = "INSERT INTO ${SCHEMA}.tbl_register(status, studentid, eventid) " +
+                    "SELECT 'IN', :studentId, :eventId " +
+                    "WHERE NOT EXISTS (" +
+                    "SELECT * FROM ${SCHEMA}.tbl_register WHERE studentid=:studentId AND eventid=:eventId" +
+                    ");"
+            def req = conn.execute( query, [studentId: studentId, eventId: eventId] )
+            conn.close()
+
+            if ( req )
+                throw new ThirioEventsException( 'Cannot register student' )
+
+            getStudentById( studentId )
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
+    }
+
+    //Lottery methods
+    static Student getRandomStudent( Integer eventId ) {
+        Sql conn = connectSql()
+        try {
+            String query = "SELECT studentid FROM ${SCHEMA}.tbl_register WHERE status='IN' " +
+                    "OFFSET floor(random()*(" +
+                    "SELECT COUNT(*) FROM ${SCHEMA}.tbl_register WHERE eventid=:eventId)) " +
+                    "LIMIT 1"
+            def req = conn.firstRow( query, [eventId: eventId] )
+            conn.close()
+
+            getStudentById( req[0].toString() )
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
+    }
+
+    static Student insertToLotteryTable( Integer eventId ) {
+        //TODO: Select total count of attendees
+        Sql conn = connectSql()
+        try {
+            String query = "SELECT COUNT(*) FROM ${SCHEMA}.tbl_lottery WHERE studentid=:studentId AND eventid=:eventId"
+            Student student
+            while ( true ) {
+                student = getRandomStudent( eventId )
+                def req = conn.firstRow( query, [studentId: student.id, eventId: eventId] )
+                if ( Integer.parseInt( req[0].toString() ) <= 0 ) {
+                    query = "INSERT INTO ${SCHEMA}.tbl_lottery(studentid, eventid) VALUES (:studentId, :eventId)"
+                    req = conn.execute( query )
+                    break
+                }
+            }
 
             student
         } catch ( Exception e ) {

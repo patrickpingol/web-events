@@ -53,7 +53,7 @@ class ApiController {
                     String date
     ) {
         errorCheck() {
-            dbcon.getEventList(name, date)
+            dbcon.getEventList( name, date )
         }
     }
 
@@ -109,6 +109,28 @@ class ApiController {
     ) {
         errorCheck() {
             dbcon.getStudentById( id )
+        }
+    }
+
+    @RequestMapping( value = '/student/register', method = [RequestMethod.POST] )
+    static ResponseEntity registerStudent(
+            @RequestParam
+                    String studentId,
+            @RequestParam
+                    String eventId
+    ) {
+        errorCheck() {
+            dbcon.registerStudent( studentId, Integer.parseInt( eventId ) )
+        }
+    }
+
+    @RequestMapping( value = '/lottery/draw', method = [RequestMethod.GET] )
+    static ResponseEntity drawStudent(
+            @RequestParam
+                    String eventId
+    ) {
+        errorCheck() {
+            dbcon.getRandomStudent( Integer.parseInt( eventId ) )
         }
     }
 
