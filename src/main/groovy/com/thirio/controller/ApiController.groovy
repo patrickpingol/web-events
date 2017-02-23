@@ -46,9 +46,14 @@ class ApiController {
     }
 
     @RequestMapping( value = '/event', method = [RequestMethod.GET] )
-    static ResponseEntity getEvents() {
+    static ResponseEntity getEvents(
+            @RequestParam( required = false, defaultValue = '' )
+                    String name,
+            @RequestParam( required = false, defaultValue = '' )
+                    String date
+    ) {
         errorCheck() {
-            dbcon.getEventList()
+            dbcon.getEventList(name, date)
         }
     }
 

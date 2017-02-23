@@ -59,11 +59,29 @@ class DatabaseConnection {
         }
     }
 
-    static Event[] getEventList() {
+    static Event[] getEventList( String name, String date ) {
         Sql conn = connectSql()
         try {
             String query = "SELECT * FROM ${SCHEMA}.tbl_events"
-            def req = conn.rows( query )
+            def req
+            if ( name != '' || date != '' ) {
+                query += ' WHERE'
+                Boolean firstInsert = true
+                Map params = [:]
+                if ( name != '' ) {
+                    query += firstInsert ? ' name=:name' : ' AND name=:name'
+                    params.put( 'name', name )
+                    firstInsert = false
+                }
+
+                if ( date != '' ) {
+                    query += firstInsert ? ' date=:date' : ' AND date=:date'
+                    params.put( 'date', date )
+                }
+                req = conn.rows( query, params )
+            } else {
+                req = conn.rows( query )
+            }
             conn.close()
             Event[] eventList = mapper.readValue( mapper.writeValueAsString( req ), Event[] )
 
@@ -113,31 +131,37 @@ class DatabaseConnection {
         Sql conn = connectSql()
         try {
             String query = "SELECT * FROM ${SCHEMA}.tbl_students"
-            Map<String, String> params = [:]
+            def req
             if ( lastName != '' || firstName != '' || college != '' || course != '' ) {
+                Map<String, String> params = [:]
+                Boolean firstInsert = true
                 query += ' WHERE'
                 if ( lastName != '' ) {
                     params.put( 'lastName', lastName )
-                    query += " lastname=:lastName"
+                    query += firstInsert ? " lastname=:lastName" : " AND lastname=:lastName"
+                    firstInsert = false
                 }
 
                 if ( firstName != '' ) {
                     params.put( 'firstName', firstName )
-                    query += " firstname=:firstName"
+                    query += firstInsert ? " firstname=:firstName" : " AND firstname=:firstName"
+                    firstInsert = false
                 }
 
                 if ( college != '' ) {
                     params.put( 'college', college )
-                    query += " college=:college"
+                    query += firstInsert ? " college=:college" : " AND college=:college"
+                    firstInsert = false
                 }
 
                 if ( course != '' ) {
                     params.put( 'course', course )
-                    query += " course=:course"
+                    query += firstInsert ? " course=:course" : " AND course=:course"
                 }
+                req = conn.rows( query, params )
+            } else {
+                req = conn.rows( query )
             }
-
-            def req = conn.rows( query, params )
             conn.close()
             Student[] students = mapper.readValue( mapper.writeValueAsString( req ), Student[] )
 
