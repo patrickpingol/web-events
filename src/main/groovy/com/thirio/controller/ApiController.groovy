@@ -72,7 +72,7 @@ class ApiController {
             @RequestBody
                     MultipartFile csvFile
     ) {
-        //TODO: Propagate tbl_students using CSV File
+        //TODO: Populate tbl_students using CSV File
         new ResponseEntity( HttpStatus.OK )
     }
 

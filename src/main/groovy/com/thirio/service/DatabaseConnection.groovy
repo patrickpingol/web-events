@@ -127,6 +127,11 @@ class DatabaseConnection {
         }
     }
 
+    //TODO: Populate tbl_students using CSV file
+    static String cretaeStudents(){
+
+    }
+
     static Student[] getStudentList( String lastName, String firstName, String college, String course ) {
         Sql conn = connectSql()
         try {
