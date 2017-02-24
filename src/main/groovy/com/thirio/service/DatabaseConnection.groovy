@@ -10,6 +10,10 @@ import com.thirio.exception.ThirioEventsException
 import com.thirio.model.Event
 import com.thirio.model.Student
 import groovy.sql.Sql
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 
 import java.sql.SQLException
 
@@ -196,61 +200,68 @@ class DatabaseConnection {
     static Student registerStudent( String studentId, Integer eventId ) {
         Sql conn = connectSql()
         try {
-            Student getTry = getStudentById( studentId )
-            if ( getTry == null )
-                throw new ThirioEventsException( 'Invalid Student ID.' )
+            Student student = getStudentById( studentId )
 
-            String query = "INSERT INTO ${SCHEMA}.tbl_register(status, studentid, eventid) " +
-                    "SELECT 'IN', :studentId, :eventId " +
-                    "WHERE NOT EXISTS (" +
-                    "SELECT * FROM ${SCHEMA}.tbl_register WHERE studentid=:studentId AND eventid=:eventId" +
-                    ");"
-            def req = conn.execute( query, [studentId: studentId, eventId: eventId] )
-            conn.close()
+            if ( student.id ) {
+                DateTimeFormatter formatter = DateTimeFormat.forPattern( 'yyyy-MM-dd hh:mm:ssaaa' )
+                DateTime dateInPH = DateTime.now( DateTimeZone.forID( 'Asia/Manila' ) )
+                String dateStr = formatter.print( dateInPH ).toLowerCase()
+                String query = "SELECT status, time FROM ${SCHEMA}.tbl_register WHERE " +
+                        "eventid=:eventId AND studentid=:studentId ORDER BY time DESC OFFSET 0 LIMIT 1"
+                def req = conn.firstRow( query, [eventId: eventId, studentId: studentId] )
+                if ( req == null )
+                    student.status = 'IN'
+                else {
+                    String status = req['status']
+                    if ( status == 'IN' )
+                        student.status = 'OUT'
+                    else
+                        student.status = 'IN'
+                }
 
-            if ( req )
-                throw new ThirioEventsException( 'Cannot register student' )
+                query = "INSERT INTO ${SCHEMA}.tbl_register (eventid, studentid, status, time) VALUES " +
+                        "(:eventId, :studentId, :status, :time)"
+                def params = [
+                        eventId  : eventId,
+                        studentId: studentId,
+                        status   : student.status,
+                        time     : dateStr
+                ]
+                if ( !conn.execute( query, params ) )
+                    return student
+            } else {
+                throw new ThirioEventsException( 'Invalid AUF Student ID.' )
+            }
 
-            getStudentById( studentId )
-        } catch ( Exception e ) {
-            throw new ThirioEventsException( e.message )
-        }
-    }
-
-    //Lottery methods
-    static Student getRandomStudent( Integer eventId ) {
-        Sql conn = connectSql()
-        try {
-            String query = "SELECT studentid FROM ${SCHEMA}.tbl_register WHERE status='IN' " +
-                    "OFFSET floor(random()*(" +
-                    "SELECT COUNT(*) FROM ${SCHEMA}.tbl_register WHERE eventid=:eventId)) " +
-                    "LIMIT 1"
-            def req = conn.firstRow( query, [eventId: eventId] )
-            conn.close()
-
-            getStudentById( req[0].toString() )
+            throw new ThirioEventsException( 'Something went extremely wrong here.' )
         } catch ( Exception e ) {
             throw new ThirioEventsException( e.message )
         }
     }
 
     static Student insertToLotteryTable( Integer eventId ) {
-        //TODO: Select total count of attendees
         Sql conn = connectSql()
         try {
-            String query = "SELECT COUNT(*) FROM ${SCHEMA}.tbl_lottery WHERE studentid=:studentId AND eventid=:eventId"
+            String query = "SELECT * FROM ${SCHEMA}.tbl_students WHERE id = " +
+                    "(SELECT DISTINCT(studentid) FROM " +
+                    "(SELECT * FROM ${SCHEMA}.tbl_register WHERE eventid=:eventId AND studentid NOT IN " +
+                    "(SELECT studentid FROM ${SCHEMA}.tbl_lottery WHERE eventid=:eventId) ORDER BY random() " +
+                    "OFFSET 0 LIMIT 1) AS b)"
             Student student
-            while ( true ) {
-                student = getRandomStudent( eventId )
-                def req = conn.firstRow( query, [studentId: student.id, eventId: eventId] )
-                if ( Integer.parseInt( req[0].toString() ) <= 0 ) {
-                    query = "INSERT INTO ${SCHEMA}.tbl_lottery(studentid, eventid) VALUES (:studentId, :eventId)"
-                    req = conn.execute( query )
-                    break
-                }
+            def req = conn.firstRow( query, [eventId: eventId] )
+            if ( req != null ) {
+                student = mapper.readValue(
+                        mapper.writeValueAsString( req ),
+                        Student.class
+                )
+                if ( !conn.execute(
+                        "INSERT INTO ${SCHEMA}.tbl_lottery(studentid, eventid) VALUES (:studentId, :eventId)",
+                        [studentId: student.id, eventId: eventId]
+                ) )
+                    return student
+            } else {
+                throw new ThirioEventsException( 'All attendees have been drawn.' )
             }
-
-            student
         } catch ( Exception e ) {
             throw new ThirioEventsException( e.message )
         }

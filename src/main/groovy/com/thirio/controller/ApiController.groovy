@@ -130,7 +130,7 @@ class ApiController {
                     String eventId
     ) {
         errorCheck() {
-            dbcon.getRandomStudent( Integer.parseInt( eventId ) )
+            dbcon.insertToLotteryTable( Integer.parseInt( eventId ) )
         }
     }
 
