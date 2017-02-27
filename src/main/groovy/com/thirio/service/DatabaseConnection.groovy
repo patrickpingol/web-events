@@ -143,7 +143,8 @@ class DatabaseConnection {
         Sql conn = connectSql()
         try {
             String query = "INSERT INTO ${SCHEMA}.tbl_students(id, lastname, firstname, college, course) VALUES " +
-                    "(:id, :lastName, :firstName, :college, :course)"
+                    "(:id, :lastName, :firstName, :college, :course) " +
+                    "ON CONFLICT DO NOTHING"
             def params = [id       : student.id,
                           lastName : student.lastName,
                           firstName: student.firstName,
