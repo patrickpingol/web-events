@@ -89,6 +89,18 @@ class WebController {
         return 'attendance'
     }
 
+    @RequestMapping( value = '/student/register' )
+    String createStudentPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
+        if ( eventId != '' ) {
+            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            model.addAttribute( 'title', event.name + ' - EVENTS' )
+        } else {
+            model.addAttribute( 'title', 'EVENTS' )
+        }
+
+        return 'create-student'
+    }
+
     @RequestMapping( value = '/lottery' )
     String lotteryPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
