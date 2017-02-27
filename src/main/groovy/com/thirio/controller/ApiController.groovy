@@ -78,15 +78,6 @@ class ApiController {
         }
     }
 
-    @RequestMapping( value = '/student/list/create', method = [RequestMethod.POST] )
-    static ResponseEntity createStudentList(
-            @RequestBody
-                    MultipartFile csvFile
-    ) {
-        //TODO: Populate tbl_students using CSV File
-        new ResponseEntity( HttpStatus.OK )
-    }
-
     @RequestMapping( value = '/student/create', method = [RequestMethod.POST] )
     static ResponseEntity createStudent(
             @RequestBody
