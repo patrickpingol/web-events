@@ -63,6 +63,64 @@ $(document).ready(function () {
             submitAttendance()
         }
     });
+
+    $('button[name="submit-student"]').on('click', function () {
+        var jsObject = {
+            id: $('input[name="studentid"]').val(),
+            lastName: $('input[name="lastname"]').val(),
+            firstName: $('input[name="firstname"]').val(),
+            college: $('select[name="college"]').val(),
+            course: $('input[name="course"]').val()
+        }
+        var data = JSON.stringify(jsObject)
+
+        $.ajax({
+            url: '/api/student/create',
+            method: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: data,
+            success: function () {
+                window.location.replace('/student/register?message=success')
+            },
+            error: function () {
+                window.location.replace('/student/register?message=error')
+            }
+        })
+    })
+
+    $('button[name="search-student"]').on('click', function () {
+        var id = $('input[name="studentid"]').val()
+        var lastName = $('input[name="lastname"]').val()
+        var firstName = $('input[name="firstname"]').val()
+        var college = $('select[name="college"]').val()
+        var course = $('input[name="course"]').val()
+
+        $.ajax({
+            url: '/api/student?id=' + id + '&lastName=' + lastName + '&firstName=' + firstName + '&college=' + college + '&course=' + course,
+            method: 'GET',
+            success: function (data) {
+                var strData
+                if (data.message.length > 0) {
+                    for (var i = 0; i < data.message.length; i++) {
+                        strData += '<tr>' +
+                            '<td>' + data.message[i].id + '</td>' +
+                            '<td>' + data.message[i].firstName + '</td>' +
+                            '<td>' + data.message[i].lastName + '</td>' +
+                            '<td>' + data.message[i].college + '</td>' +
+                            '<td>' + data.message[i].course + '</td>' +
+                            '</tr>'
+                    }
+                    $('tbody[name="data"]').html(strData)
+                } else {
+                    $('tbody[name="data"]').html('<tr><th colspan="5" class="text-center">No hits.</th></tr>')
+                }
+            },
+            error: function (data) {
+                console.log(data)
+            }
+        })
+    })
 });
 
 $(function () {
@@ -95,6 +153,12 @@ function submitAttendance() {
                 $('p[name="student-info"]').html(message)
         }
     })
+}
+
+function showDeleteModal(eventId, eventName) {
+    $('span[name="modal-message"]').html('Are you sure you want to delete ' + eventName + '?')
+    $('span[name="deleteButton"]').html('<button type="button" onclick="delEvent(' + eventId + ')" class="btn btn-danger">ABSOLUTELY</button>')
+    $('#deleteModal').modal('show')
 }
 
 function delEvent(eventId) {
