@@ -18,10 +18,12 @@ class WebController {
     String homePage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            model.addAttribute( 'title', 'EVENTS - ' + event.name )
             model.addAttribute( 'eventName', event.name )
             model.addAttribute( 'eventDate', event.date )
         } else {
             Event[] events = dbcon.getEventList( '', '' )
+            model.addAttribute( 'title', 'EVENTS' )
             model.addAttribute( 'events', events )
         }
 
@@ -29,14 +31,26 @@ class WebController {
     }
 
     @RequestMapping( value = '/event/create' )
-    String createEventPage( Model model ) {
+    String createEventPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
+        if ( eventId != '' ) {
+            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            model.addAttribute( 'title', 'EVENTS - ' + event.name )
+        } else {
+            model.addAttribute( 'title', 'EVENTS' )
+        }
+
         return 'create-event'
     }
 
     @RequestMapping( value = '/lottery' )
     String lotteryPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
-        /*if ( eventId == '' )
-            return 'Please select an event first'*/
+        if ( eventId != '' ) {
+            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            model.addAttribute( 'title', 'EVENTS - ' + event.name )
+        } else {
+            model.addAttribute( 'title', 'EVENTS' )
+        }
+
         return 'lottery'
     }
 }
