@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>EVENTS - SET TITLE</title>
+    <title>SET TITLE - EVENTS</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="/css/bootstrap4.min.css" rel="stylesheet">
@@ -58,38 +58,38 @@
                         <a href="javascript:;" data-toggle="collapse" data-target="#sub-event"><i class="fa fa-fw fa-calendar"></i> Events <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="sub-event" class="collapse">
                             <li>
-                                <a href="/events/create">Create</a>
+                                <a href="/event/create">Create</a>
                             </li>
                             <li>
-                                <a href="#">Edit</a>
+                                <a href="/event/edit">Edit</a>
                             </li>
-                            <li>
+                            <!--<li>
                                 <a href="#">Search</a>
-                            </li>
+                            </li>-->
                         </ul>
                     </li>
                     <li>
                         <a href="javascript:;" data-toggle="collapse" data-target="#sub-students"><i class="fa fa-fw fa-users"></i> Students <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="sub-students" class="collapse">
                             <li>
-                                <a href="#">Register</a>
+                                <a href="/student/register">Register</a>
                             </li>
                             <li>
-                                <a href="#">Search</a>
+                                <a href="/student/search">Search</a>
                             </li>
                             <li>
-                                <a href="#">List</a>
+                                <a href="/student/list">List</a>
                             </li>
                         </ul>
                     </li>
                     <li>
-                        <a href="charts.html"><i class="fa fa-fw fa-clock-o"></i> Attendance</a>
+                        <a href="/attendance"><i class="fa fa-fw fa-clock-o"></i> Attendance</a>
                     </li>
                     <li class="active">
                         <a href="/lottery"><i class="fa fa-fw fa-ticket"></i> Lottery</a>
                     </li>
                     <li>
-                        <a href="index-rtl.html"><i class="fa fa-fw fa-dashboard"></i> RTL Dashboard</a>
+                        <a href="/import"><i class="fa fa-fw fa-upload"></i> Import CSV</a>
                     </li>
                 </ul>
             </div>
@@ -154,6 +154,12 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script src="/js/bootstrap.min.js"></script>
+
+    <!-- JS COOKIE -->
+    <script src="/js/js.cookie.js"></script>
+
+    <!-- THIRIO CUSTOM SCRIPTS -->
+    <script src="/js/scripts.js"></script>
 
 </body>
 

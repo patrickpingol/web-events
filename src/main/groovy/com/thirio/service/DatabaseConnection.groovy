@@ -1,5 +1,6 @@
 package com.thirio.service
 
+import au.com.bytecode.opencsv.CSVReader
 import com.fasterxml.jackson.databind.AnnotationIntrospector
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -14,6 +15,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import org.springframework.web.multipart.MultipartFile
 
 import java.sql.SQLException
 
@@ -21,10 +23,21 @@ import java.sql.SQLException
  * @author patrick.pingol
  */
 class DatabaseConnection {
-    private static final String HOST = 'localhost'
+    //local - HOME
+    /*private static final String HOST = 'localhost'
     private static final String CONN_USER = 'postgres'
     private static final String CONN_PASS = ''
     private static final String DB = 'db_thirio'
+    private static final SCHEMA = 'events'
+    private static final String CONN_URL = "jdbc:postgresql://$HOST:5432/$DB"
+    private static final String CONN_DRIVER = 'org.postgresql.Driver'
+    private static ObjectMapper mapper*/
+
+    //local - toro
+    private static final String HOST = 'localhost'
+    private static final String CONN_USER = 'patrick.pingol'
+    private static final String CONN_PASS = ''
+    private static final String DB = 'patrick.pingol'
     private static final SCHEMA = 'events'
     private static final String CONN_URL = "jdbc:postgresql://$HOST:5432/$DB"
     private static final String CONN_DRIVER = 'org.postgresql.Driver'
@@ -113,6 +126,19 @@ class DatabaseConnection {
         }
     }
 
+    static Boolean deleteEvent( Integer id ) {
+        Sql conn = connectSql()
+        try {
+            String query = "DELETE FROM ${SCHEMA}.tbl_events WHERE id=:id"
+            def req = conn.execute( query, [id: id] )
+            conn.close()
+
+            return !req
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
+    }
+
     static String createStudent( Student student ) {
         Sql conn = connectSql()
         try {
@@ -133,8 +159,28 @@ class DatabaseConnection {
     }
 
     //Stduent methods
-    static String createStudents() {
+    static Boolean createStudents( MultipartFile file ) {
         //TODO: Populate tbl_students using CSV file
+        Sql conn = connectSql()
+        try {
+            File newFile = new File( '/tmp/' + file.getOriginalFilename() )
+            file.transferTo( newFile )
+            CSVReader reader = new CSVReader( new FileReader( newFile ) )
+            List<String[]> allRows = reader.readAll()
+
+            String query = "INSERT INTO ${SCHEMA}.tbl_students(id, lastname, firstname, college, course) VALUES " +
+                    "(?, ?, ?, ?, ?) ON CONFLICT DO NOTHING"
+
+            conn.withBatch( allRows.size(), query ) { ps ->
+                allRows.each { str ->
+                    ps.addBatch( str[0], str[1], str[2], str[3], str[4] )
+                }
+            }
+
+            true
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
     }
 
     static Student[] getStudentList( String lastName, String firstName, String college, String course ) {
@@ -196,13 +242,26 @@ class DatabaseConnection {
         }
     }
 
+    static Boolean deleteStudent( String id ) {
+        Sql conn = connectSql()
+        try {
+            String query = "DELETE FROM ${SCHEMA}.tbl_students WHERE id=:id"
+            def req = conn.execute( query, [id: id] )
+            conn.close()
+
+            return !req
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
+    }
+
     //Register methods
     static Student registerStudent( String studentId, Integer eventId ) {
         Sql conn = connectSql()
         try {
             Student student = getStudentById( studentId )
 
-            if ( student.id ) {
+            if ( student.id != null ) {
                 DateTimeFormatter formatter = DateTimeFormat.forPattern( 'yyyy-MM-dd hh:mm:ssaaa' )
                 DateTime dateInPH = DateTime.now( DateTimeZone.forID( 'Asia/Manila' ) )
                 String dateStr = formatter.print( dateInPH ).toLowerCase()

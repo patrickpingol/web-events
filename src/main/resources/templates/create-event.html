@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>EVENTS - Create Event</title>
+    <title>Create Event - EVENTS</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="/css/bootstrap4.min.css" rel="stylesheet">
@@ -57,39 +57,39 @@
                     <li class="active">
                         <a href="javascript:;" data-toggle="collapse" data-target="#sub-event"><i class="fa fa-fw fa-calendar"></i> Events <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="sub-event" class="collapse">
-                            <li class="active">
-                                <a href="/events/create">Create</a>
+                            <li>
+                                <a href="/event/create">Create</a>
                             </li>
                             <li>
-                                <a href="#">Edit</a>
+                                <a href="/event/edit">Edit</a>
                             </li>
-                            <li>
+                            <!--<li>
                                 <a href="#">Search</a>
-                            </li>
+                            </li>-->
                         </ul>
                     </li>
                     <li>
                         <a href="javascript:;" data-toggle="collapse" data-target="#sub-students"><i class="fa fa-fw fa-users"></i> Students <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="sub-students" class="collapse">
                             <li>
-                                <a href="#">Register</a>
+                                <a href="/student/register">Register</a>
                             </li>
                             <li>
-                                <a href="#">Search</a>
+                                <a href="/student/search">Search</a>
                             </li>
                             <li>
-                                <a href="#">List</a>
+                                <a href="/student/list">List</a>
                             </li>
                         </ul>
                     </li>
                     <li>
-                        <a href="charts.html"><i class="fa fa-fw fa-clock-o"></i> Attendance</a>
+                        <a href="/attendance"><i class="fa fa-fw fa-clock-o"></i> Attendance</a>
                     </li>
                     <li>
                         <a href="/lottery"><i class="fa fa-fw fa-ticket"></i> Lottery</a>
                     </li>
                     <li>
-                        <a href="index-rtl.html"><i class="fa fa-fw fa-dashboard"></i> RTL Dashboard</a>
+                        <a href="/import"><i class="fa fa-fw fa-upload"></i> Import CSV</a>
                     </li>
                 </ul>
             </div>
@@ -104,15 +104,15 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Lottery
-                            <!--<small>Subheading</small>-->
+                            Event
+                            <small>Create</small>
                         </h1>
                         <ol class="breadcrumb">
                             <li>
                                 <i class="fa fa-home"></i>  <a href="/index">Home</a>
                             </li>
                             <li>
-                                <i class="fa fa-ticket"></i> Events
+                                <i class="fa fa-calendar"></i> Event
                             </li>
                             <li class="active">
                                 <i class="fa fa-plus"></i> Create
@@ -124,25 +124,35 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-12">
                         <div class="jumbotron">
-                            <form name="event-select" th:if="${eventName} == null">
-                                <div class="row justify-content-center no-gutters">
+                            <form name="event-create">
+                                <div class="row justify-content-center">
                                     <div class="col-lg-6 form-group">
                                         <label for="event-name"><span class="text-danger">*</span>Event Name</label>
                                     </div>
                                 </div>
-                                <div class="row justify-content-center no-gutters">
+                                <div class="row justify-content-center">
                                     <div class="col-lg-6 align-self-center form-group">
-                                        <input type="text" name="event-name" class="form-control">
+                                        <input type="text" name="event-name" placeholder="EVENT NAME" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="row justify-content-center">
+                                    <div class="col-lg-6 form-group">
+                                        <label for="event-date"><span class="text-danger">*</span>Event Date</label>
+                                    </div>
+                                </div>
+                                <div class="row justify-content-center">
+                                    <div class="col-lg-6 align-self-center form-group">
+                                        <input type="date" name="event-date" required="required" class="form-control">
                                     </div>
                                 </div>
                                 <div class="row justify-content-center text-center">
                                     <div class="col-lg-6">
-                                        <button type="button" name="set-event" class="btn btn-success">SUBMIT</button>
+                                        <button type="button" name="create-event" class="btn btn-success">SUBMIT</button>
                                     </div>
                                 </div>
                             </form>
                             <hr class="my-4">
-                            <p class="lead">
+                            <p class="lead text-center">
                                 Please fill in all fields.
                             </p>
                         </div>
@@ -169,6 +179,12 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script src="/js/bootstrap.min.js"></script>
+
+    <!-- JS COOKIE -->
+    <script src="/js/js.cookie.js"></script>
+
+    <!-- THIRIO CUSTOM SCRIPTS -->
+    <script src="/js/scripts.js"></script>
 
 </body>
 

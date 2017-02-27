@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector
 import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector
+import com.thirio.exception.ThirioEventsException
 import com.thirio.model.Event
 import com.thirio.model.Student
 import com.thirio.service.DatabaseConnection
@@ -67,6 +68,16 @@ class ApiController {
         }
     }
 
+    @RequestMapping( value = '/event/delete/{id}', method = [RequestMethod.DELETE] )
+    static ResponseEntity deleteEventById(
+            @PathVariable
+                    Integer id
+    ) {
+        errorCheck() {
+            dbcon.deleteEvent( id )
+        }
+    }
+
     @RequestMapping( value = '/student/list/create', method = [RequestMethod.POST] )
     static ResponseEntity createStudentList(
             @RequestBody
@@ -112,14 +123,36 @@ class ApiController {
         }
     }
 
+    @RequestMapping( value = '/student/delete/{id}', method = [RequestMethod.DELETE] )
+    static ResponseEntity deleteStudent(
+            @PathVariable
+                    String id
+    ) {
+        errorCheck() {
+            dbcon.deleteStudent( id )
+        }
+    }
+
+    @RequestMapping( value = '/student/csv', method = [RequestMethod.POST] )
+    static ResponseEntity uploadCsv(
+            MultipartFile file
+    ) {
+        errorCheck() {
+            dbcon.createStudents( file )
+        }
+    }
+
     @RequestMapping( value = '/student/register', method = [RequestMethod.POST] )
     static ResponseEntity registerStudent(
             @RequestParam
                     String studentId,
-            @RequestParam
+            @CookieValue(name = 'EVENTID', defaultValue = '')
                     String eventId
     ) {
         errorCheck() {
+            if(eventId == '')
+                throw new ThirioEventsException('No event is selected')
+
             dbcon.registerStudent( studentId, Integer.parseInt( eventId ) )
         }
     }
