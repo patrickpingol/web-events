@@ -78,7 +78,7 @@ class WebController {
 
     @RequestMapping( value = '/attendance' )
     String attendancePage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId,
-                          @RequestParam( required = false, defaultValue = '' ) String message ) {
+                           @RequestParam( required = false, defaultValue = '' ) String message ) {
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
             model.addAttribute( 'title', event.name + ' - EVENTS' )
@@ -90,7 +90,17 @@ class WebController {
     }
 
     @RequestMapping( value = '/student/register' )
-    String createStudentPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
+    String createStudentPage( Model model,
+                              @CookieValue( value = 'EVENTID', defaultValue = '' )
+                                      String eventId,
+                              @RequestParam( required = false, defaultValue = '' )
+                                      String message
+    ) {
+        if ( message.equalsIgnoreCase( 'success' ) )
+            model.addAttribute( 'create', true )
+        else if ( message.equalsIgnoreCase( 'error' ) )
+            model.addAttribute( 'create', false )
+
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
             model.addAttribute( 'title', event.name + ' - EVENTS' )
@@ -99,6 +109,22 @@ class WebController {
         }
 
         return 'create-student'
+    }
+
+    @RequestMapping( value = '/student/search' )
+    String searchStudentPage( Model model,
+                              @CookieValue( value = 'EVENTID', defaultValue = '' )
+                                      String eventId
+    ) {
+
+        if ( eventId != '' ) {
+            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            model.addAttribute( 'title', event.name + ' - EVENTS' )
+        } else {
+            model.addAttribute( 'title', 'EVENTS' )
+        }
+
+        return 'search-student'
     }
 
     @RequestMapping( value = '/lottery' )

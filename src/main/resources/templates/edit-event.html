@@ -33,7 +33,22 @@
 </head>
 
 <body>
-
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">BUT WAIT...</h5>
+            </div>
+            <div class="modal-body">
+                <span name="modal-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+                <span name="deleteButton"></span>
+            </div>
+            </div>
+        </div>
+    </div>
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -54,7 +69,7 @@
                     <li>
                         <a href="/index"><i class="fa fa-fw fa-home"></i> Home</a>
                     </li>
-                    <li  class="active">
+                    <li class="active">
                         <a href="javascript:;" data-toggle="collapse" data-target="#sub-event"><i class="fa fa-fw fa-calendar"></i> Events <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="sub-event" class="collapse">
                             <li>
@@ -63,9 +78,9 @@
                             <li>
                                 <a href="/event/edit">Edit</a>
                             </li>
-                            <!--<li>
-                                <a href="#">Search</a>
-                            </li>-->
+                            <li>
+                                <a href="/event/status">Status</a>
+                            </li>
                         </ul>
                     </li>
                     <li>
@@ -77,9 +92,9 @@
                             <li>
                                 <a href="/student/search">Search</a>
                             </li>
-                            <li>
+                            <!--<li>
                                 <a href="/student/list">List</a>
-                            </li>
+                            </li>-->
                         </ul>
                     </li>
                     <li>
@@ -92,7 +107,6 @@
                         <a href="/import"><i class="fa fa-fw fa-upload"></i> Import CSV</a>
                     </li>
                 </ul>
-            </div>
             <!-- /.navbar-collapse -->
         </nav>
 
@@ -141,7 +155,7 @@
                                                 <th scope="row" th:text="${event.id}"></th>
                                                 <td th:text="${event.name}"></td>
                                                 <td th:text="${event.date}"></td>
-                                                <td><button type="button" name="del-button" th:onclick="'delEvent('+${event.id}+');'" class="btn btn-danger">DELETE</button></td>
+                                                <td><button type="button" name="del-button" th:onclick="'showDeleteModal('+${event.id}+', \''+${event.name}+'\');'" class="btn btn-danger">DELETE</button></td>
                                             </tr>
                                             </th:block>
                                         </tbody>
