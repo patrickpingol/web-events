@@ -12,15 +12,13 @@ import com.thirio.service.DatabaseConnection
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.context.annotation.RequestScope
 import org.springframework.web.multipart.MultipartFile
-
 /**
  * @author patrick.pingol
  */
-@RestController
-@RequestScope
-@RequestMapping( '/api' )
+//@RestController
+//@RequestScope
+//@RequestMapping( '/api' )
 class ApiController {
     private static DatabaseConnection dbcon = new DatabaseConnection()
     private static ObjectMapper mapper

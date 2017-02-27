@@ -2,16 +2,14 @@ package com.thirio.controller
 
 import com.thirio.model.Event
 import com.thirio.service.DatabaseConnection
-import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
-
 /**
  * @author patrick.pingol
  */
-@Controller
+//@Controller
 class WebController {
     private DatabaseConnection dbcon = new DatabaseConnection()
 
