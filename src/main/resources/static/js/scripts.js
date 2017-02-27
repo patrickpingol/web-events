@@ -54,25 +54,43 @@ $(document).ready(function () {
     })
 
     $('button[name="submit-attendance"]').on('click', function () {
-        var studId = $('input[name="idnum"]').val()
-
-        $.ajax({
-            url: '/api/student/register?studentId=' + studId,
-            method: 'POST',
-            dataType:'json',
-            success: function (data) {
-                $('p[name="student-info"]').html(
-                    data.message.id + ' | ' + data.message.lastName + ' ' + data.message.firstName + '<br />' +
-                    data.message.college + ' | ' + data.message.course + ' | ' + data.message.status
-                )
-            },
-            error: function (data) {
-                alert('ERROR')
-                $('p[name="student-info"]').html(''+data.message)
-            }
-        })
+        submitAttendance();
     })
+
+    $('input[name="idnum"]').keypress(function (event) {
+        if (event.which == 13) {
+            event.preventDefault()
+            submitAttendance()
+        }
+    });
 });
+
+$(function () {
+    // Focus on load
+    $('input[name="idnum"]').focus();
+    // Force focus
+    $('input[name="idnum"]').focusout(function () {
+        $('input[name="idnum"]').focus();
+    });
+})
+
+function submitAttendance() {
+    var studId = $('input[name="idnum"]').val()
+    $.ajax({
+        url: '/api/student/register?studentId=' + studId,
+        method: 'POST',
+        dataType: 'json',
+        success: function (data) {
+            $('p[name="student-info"]').html(
+                data.message.id + ' | ' + data.message.lastName + ' ' + data.message.firstName + '<br />' +
+                data.message.college + ' | ' + data.message.course + ' | ' + data.message.status
+            )
+        },
+        error: function (data) {
+            $('p[name="student-info"]').html('Invalid AUF Student ID.')
+        }
+    })
+}
 
 function delEvent(eventId) {
     $.ajax({
