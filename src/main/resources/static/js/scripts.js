@@ -82,12 +82,17 @@ function submitAttendance() {
         dataType: 'json',
         success: function (data) {
             $('p[name="student-info"]').html(
-                data.message.id + ' | ' + data.message.lastName + ' ' + data.message.firstName + '<br />' +
+                '<span class="display-3 h3">' + data.message.firstName + ' ' + data.message.lastName + '</span><br />' +
+                data.message.id + '<br />' +
                 data.message.college + ' | ' + data.message.course + ' | ' + data.message.status
             )
         },
         error: function (data) {
-            $('p[name="student-info"]').html('Invalid AUF Student ID.')
+            var message = data.responseJSON.message
+            if (message == "Cannot get property 'id' on null object")
+                $('p[name="student-info"]').html('Invalid AUF Student ID.')
+            else
+                $('p[name="student-info"]').html(message)
         }
     })
 }
