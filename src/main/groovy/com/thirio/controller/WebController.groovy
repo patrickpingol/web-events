@@ -58,6 +58,22 @@ class WebController {
         return 'edit-event'
     }
 
+    //TODO: GET EVENT STATUS (Number of attendees)
+    @RequestMapping( value = '/event/status' )
+    String editStatusPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
+        if ( eventId != '' ) {
+            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            model.addAttribute( 'title', event.name + ' - EVENTS' )
+        } else {
+            model.addAttribute( 'title', 'EVENTS' )
+        }
+
+        Event[] events = dbcon.getEventList( '', '' )
+        model.addAttribute( 'events', events )
+
+        return 'event-status'
+    }
+
     @RequestMapping( value = '/import' )
     String csvUploadPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId,
                           @RequestParam( required = false, defaultValue = '' ) String message ) {
