@@ -1,6 +1,7 @@
 package com.thirio.service
 
 import au.com.bytecode.opencsv.CSVReader
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.AnnotationIntrospector
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -23,24 +24,17 @@ import java.sql.SQLException
  * @author patrick.pingol
  */
 class DatabaseConnection {
-    //local - HOME
-    /*private static final String HOST = 'localhost'
-    private static final String CONN_USER = 'postgres'
-    private static final String CONN_PASS = ''
-    private static final String DB = 'db_thirio'
-    private static final SCHEMA = 'events'
-    private static final String CONN_URL = "jdbc:postgresql://$HOST:5432/$DB"
+    //local - toro
+    /*private static String host = 'localhost'
+    private static String user = 'patrick.pingol'
+    private static String pass = ''
+    private static String db = 'patrick.pingol'
+    private static String schema = 'events'
+    private static final String connUrl = "jdbc:postgresql://$host:5432/$db"
     private static final String CONN_DRIVER = 'org.postgresql.Driver'
     private static ObjectMapper mapper*/
 
-    //local - toro
-    private static final String HOST = 'localhost'
-    private static final String CONN_USER = 'patrick.pingol'
-    private static final String CONN_PASS = ''
-    private static final String DB = 'patrick.pingol'
-    private static final SCHEMA = 'events'
-    private static final String CONN_URL = "jdbc:postgresql://$HOST:5432/$DB"
-    private static final String CONN_DRIVER = 'org.postgresql.Driver'
+    private static String schema = 'events'
     private static ObjectMapper mapper
 
     static {
@@ -57,9 +51,26 @@ class DatabaseConnection {
 
     static Sql connectSql() {
         try {
-            Sql.newInstance( CONN_URL, CONN_USER, CONN_PASS, CONN_DRIVER )
+            File connFile = new File( 'database.json' )
+            Map<String, String> connInfo = [:]
+
+            if ( connFile.exists() ) {
+                connInfo = mapper.readValue( connFile, new TypeReference<Map<String, String>>() {} )
+                schema = connInfo.schema
+            } else {
+                connInfo.put( 'host', 'localhost' )
+                connInfo.put( 'user', 'postgres' )
+                connInfo.put( 'pass', '' )
+                connInfo.put( 'db', 'db_thirio' )
+                connInfo.put( 'schema', 'events' )
+                schema = 'events'
+
+                mapper.writeValue( connFile, connInfo )
+            }
+            Sql.newInstance( "jdbc:postgresql://${connInfo.host}:5432/${connInfo.db}", connInfo.user, connInfo.pass,
+                    'org.postgresql.Driver' )
         } catch ( SQLException e ) {
-            throw new ThirioEventsException( "Failed to connect to DB:\n${e.message}" )
+            throw new ThirioEventsException( "Failed to connect to db:\n${e.message}" )
         }
     }
 
@@ -67,7 +78,7 @@ class DatabaseConnection {
     static Integer createEvent( Event event ) {
         Sql conn = connectSql()
         try {
-            String query = "INSERT INTO ${SCHEMA}.tbl_events(name, date) VALUES (:name, :date)"
+            String query = "INSERT INTO ${schema}.tbl_events(name, date) VALUES (:name, :date)"
             def req = conn.executeInsert( query, [name: event.name, date: event.date] )
             conn.close()
 
@@ -80,7 +91,7 @@ class DatabaseConnection {
     static Event[] getEventList( String name, String date ) {
         Sql conn = connectSql()
         try {
-            String query = "SELECT * FROM ${SCHEMA}.tbl_events"
+            String query = "SELECT * FROM ${schema}.tbl_events"
             def req
             if ( name != '' || date != '' ) {
                 query += ' WHERE'
@@ -112,7 +123,7 @@ class DatabaseConnection {
     static Event getEvent( Integer id ) {
         Sql conn = connectSql()
         try {
-            String query = "SELECT * FROM ${SCHEMA}.tbl_events WHERE id=:id"
+            String query = "SELECT * FROM ${schema}.tbl_events WHERE id=:id"
             def req = conn.firstRow( query, [id: id] )
             conn.close()
 
@@ -129,7 +140,7 @@ class DatabaseConnection {
     static Boolean deleteEvent( Integer id ) {
         Sql conn = connectSql()
         try {
-            String query = "DELETE FROM ${SCHEMA}.tbl_events WHERE id=:id"
+            String query = "DELETE FROM ${schema}.tbl_events WHERE id=:id"
             def req = conn.execute( query, [id: id] )
             conn.close()
 
@@ -142,8 +153,8 @@ class DatabaseConnection {
     static Student[] getEventStatus( Integer id, String status ) {
         Sql conn = connectSql()
         try {
-            String query = "SELECT * FROM ${SCHEMA}.tbl_students WHERE id IN " +
-                    "(SELECT studentid FROM ${SCHEMA}.tbl_register WHERE eventid=:eventId AND status=:status)"
+            String query = "SELECT * FROM ${schema}.tbl_students WHERE id IN " +
+                    "(SELECT studentid FROM ${schema}.tbl_register WHERE eventid=:eventId AND status=:status)"
             def req = conn.rows( query, [eventId: id, status: status] )
             conn.close()
 
@@ -161,7 +172,7 @@ class DatabaseConnection {
     static String createStudent( Student student ) {
         Sql conn = connectSql()
         try {
-            String query = "INSERT INTO ${SCHEMA}.tbl_students(id, lastname, firstname, college, course) VALUES " +
+            String query = "INSERT INTO ${schema}.tbl_students(id, lastname, firstname, college, course) VALUES " +
                     "(:id, :lastName, :firstName, :college, :course) " +
                     "ON CONFLICT DO NOTHING"
             def params = [id       : student.id,
@@ -181,12 +192,12 @@ class DatabaseConnection {
     static Boolean createStudents( MultipartFile file ) {
         Sql conn = connectSql()
         try {
-            File newFile = new File( '/tmp/' + file.getOriginalFilename() )
+            File newFile = new File( System.getProperty( 'java.io.tmpdir' ) + file.getOriginalFilename() )
             file.transferTo( newFile )
             CSVReader reader = new CSVReader( new FileReader( newFile ) )
             List<String[]> allRows = reader.readAll()
 
-            String query = "INSERT INTO ${SCHEMA}.tbl_students(id, lastname, firstname, college, course) VALUES " +
+            String query = "INSERT INTO ${schema}.tbl_students(id, lastname, firstname, college, course) VALUES " +
                     "(?, ?, ?, ?, ?) ON CONFLICT DO NOTHING"
 
             conn.withBatch( allRows.size(), query ) { ps ->
@@ -204,7 +215,7 @@ class DatabaseConnection {
     static Student[] getStudentList( String lastName, String firstName, String college, String course ) {
         Sql conn = connectSql()
         try {
-            String query = "SELECT * FROM ${SCHEMA}.tbl_students"
+            String query = "SELECT * FROM ${schema}.tbl_students"
             def req
             if ( lastName != '' || firstName != '' || college != '' || course != '' ) {
                 Map<String, String> params = [:]
@@ -251,7 +262,7 @@ class DatabaseConnection {
     static Student getStudentById( String id ) {
         Sql conn = connectSql()
         try {
-            String query = "SELECT * FROM ${SCHEMA}.tbl_students WHERE id=:id"
+            String query = "SELECT * FROM ${schema}.tbl_students WHERE id=:id"
             def req = conn.firstRow( query, [id: id] )
             conn.close()
 
@@ -266,7 +277,7 @@ class DatabaseConnection {
     static Boolean deleteStudent( String id ) {
         Sql conn = connectSql()
         try {
-            String query = "DELETE FROM ${SCHEMA}.tbl_students WHERE id=:id"
+            String query = "DELETE FROM ${schema}.tbl_students WHERE id=:id"
             def req = conn.execute( query, [id: id] )
             conn.close()
 
@@ -286,7 +297,7 @@ class DatabaseConnection {
                 DateTimeFormatter formatter = DateTimeFormat.forPattern( 'yyyy-MM-dd hh:mm:ssaaa' )
                 DateTime dateInPH = DateTime.now( DateTimeZone.forID( 'Asia/Manila' ) )
                 String dateStr = formatter.print( dateInPH ).toLowerCase()
-                String query = "SELECT status, time FROM ${SCHEMA}.tbl_register WHERE " +
+                String query = "SELECT status, time FROM ${schema}.tbl_register WHERE " +
                         "eventid=:eventId AND studentid=:studentId ORDER BY time DESC OFFSET 0 LIMIT 1"
                 def req = conn.firstRow( query, [eventId: eventId, studentId: studentId] )
                 if ( req == null )
@@ -299,7 +310,7 @@ class DatabaseConnection {
                         student.status = 'IN'
                 }
 
-                query = "INSERT INTO ${SCHEMA}.tbl_register (eventid, studentid, status, time) VALUES " +
+                query = "INSERT INTO ${schema}.tbl_register (eventid, studentid, status, time) VALUES " +
                         "(:eventId, :studentId, :status, :time)"
                 def params = [
                         eventId  : eventId,
@@ -322,10 +333,10 @@ class DatabaseConnection {
     static Student insertToLotteryTable( Integer eventId ) {
         Sql conn = connectSql()
         try {
-            String query = "SELECT * FROM ${SCHEMA}.tbl_students WHERE id = " +
+            String query = "SELECT * FROM ${schema}.tbl_students WHERE id = " +
                     "(SELECT DISTINCT(studentid) FROM " +
-                    "(SELECT * FROM ${SCHEMA}.tbl_register WHERE eventid=:eventId AND studentid NOT IN " +
-                    "(SELECT studentid FROM ${SCHEMA}.tbl_lottery WHERE eventid=:eventId) ORDER BY random() " +
+                    "(SELECT * FROM ${schema}.tbl_register WHERE eventid=:eventId AND studentid NOT IN " +
+                    "(SELECT studentid FROM ${schema}.tbl_lottery WHERE eventid=:eventId) ORDER BY random() " +
                     "OFFSET 0 LIMIT 1) AS b)"
             Student student
             def req = conn.firstRow( query, [eventId: eventId] )
@@ -335,7 +346,7 @@ class DatabaseConnection {
                         Student.class
                 )
                 if ( !conn.execute(
-                        "INSERT INTO ${SCHEMA}.tbl_lottery(studentid, eventid) VALUES (:studentId, :eventId)",
+                        "INSERT INTO ${schema}.tbl_lottery(studentid, eventid) VALUES (:studentId, :eventId)",
                         [studentId: student.id, eventId: eventId]
                 ) )
                     return student
