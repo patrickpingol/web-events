@@ -93,7 +93,7 @@ $(document).ready(function () {
         var id = $('input[name="studentid"]').val()
         var lastName = $('input[name="lastname"]').val()
         var firstName = $('input[name="firstname"]').val()
-        var college = $('select[name="college"]').val()
+        var college = $('select[name="college"]').val() != null ? $('select[name="college"]').val() : ''
         var course = $('input[name="course"]').val()
 
         $.ajax({
@@ -105,8 +105,8 @@ $(document).ready(function () {
                     for (var i = 0; i < data.message.length; i++) {
                         strData += '<tr>' +
                             '<td>' + data.message[i].id + '</td>' +
-                            '<td>' + data.message[i].firstName + '</td>' +
                             '<td>' + data.message[i].lastName + '</td>' +
+                            '<td>' + data.message[i].firstName + '</td>' +
                             '<td>' + data.message[i].college + '</td>' +
                             '<td>' + data.message[i].course + '</td>' +
                             '</tr>'
@@ -115,6 +115,7 @@ $(document).ready(function () {
                 } else {
                     $('tbody[name="data"]').html('<tr><th colspan="5" class="text-center">No hits.</th></tr>')
                 }
+                $('span[name="res-count"]').html(data.message.length)
             },
             error: function (data) {
                 console.log(data)
