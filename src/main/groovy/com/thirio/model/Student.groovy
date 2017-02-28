@@ -29,8 +29,4 @@ class Student {
 
     @Column
     String course
-
-    @Column
-    @XmlElement( nillable = true )
-    String status
 }
