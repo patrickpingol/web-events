@@ -122,6 +122,64 @@ $(document).ready(function () {
             }
         })
     })
+
+    $('button[name="event-status"]').on('click', function () {
+        var id = $('select[name="events"]').val()
+        var status = $('select[name="status"]').val()
+
+        $.ajax({
+            url: '/api/event/' + id + '?status=' + status,
+            method: 'GET',
+            success: function (data) {
+                var strData
+                if (data.message.length > 0) {
+                    for (var i = 0; i < data.message.length; i++) {
+                        strData += '<tr>' +
+                            '<td>' + data.message[i].id + '</td>' +
+                            '<td>' + data.message[i].lastName + '</td>' +
+                            '<td>' + data.message[i].firstName + '</td>' +
+                            '<td>' + data.message[i].college + '</td>' +
+                            '<td>' + data.message[i].course + '</td>' +
+                            '<td>' + data.message[i].status + '</td>' +
+                            '</tr>'
+                    }
+                    $('tbody[name="data"]').html(strData)
+                } else {
+                    $('tbody[name="data"]').html('<tr><th colspan="6" class="text-center">No hits.</th></tr>')
+                }
+                $('span[name="res-count"]').html(data.message.length)
+            },
+            error: function (data) {
+                $('tbody[name="data"]').html('<tr><th colspan="6" class="text-center">' + data.responseJSON.message + '</th></tr>')
+            }
+        })
+    })
+
+    $('button[name="lottery-draw"]').on('click', function (event) {
+        var id = Cookies.get("EVENTID")
+        if (id == null || id == 'undefined') {
+            $('div[name="winner"]').html(
+                '<h1 class="display-3">No event is selected.</h1>'
+            )
+            return
+        }
+
+        $.ajax({
+            url: '/api/lottery/draw?eventId=' + id,
+            method: 'GET',
+            success: function (data) {
+                $('div[name="winner"]').html(
+                    '<h2 class="display-3">' + data.message.firstName + ' ' + data.message.lastName + '</h2>' +
+                    '<p class="lead">' + data.message.id + '</p>'
+                )
+            },
+            error: function (data) {
+                $('div[name="winner"]').html(
+                    '<h1 class="display-3">' + data.responseJSON.message + '</h1>'
+                )
+            }
+        })
+    })
 });
 
 $(function () {
@@ -154,6 +212,7 @@ function submitAttendance() {
                 $('p[name="student-info"]').html(message)
         }
     })
+    $('input[name="idnum"]').val('')
 }
 
 function showDeleteModal(eventId, eventName) {

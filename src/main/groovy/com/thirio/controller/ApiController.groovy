@@ -60,11 +60,16 @@ class ApiController {
 
     @RequestMapping( value = '/event/{id}', method = [RequestMethod.GET] )
     static ResponseEntity getEventById(
+            @RequestParam( required = false, defaultValue = '' )
+                    String status,
             @PathVariable
                     Integer id
     ) {
         errorCheck() {
-            dbcon.getEvent( id )
+            if ( status == '' )
+                dbcon.getEvent( id )
+            else
+                dbcon.getEventStatus( id, status )
         }
     }
 
@@ -137,12 +142,12 @@ class ApiController {
     static ResponseEntity registerStudent(
             @RequestParam
                     String studentId,
-            @CookieValue(name = 'EVENTID', defaultValue = '')
+            @CookieValue( name = 'EVENTID', defaultValue = '' )
                     String eventId
     ) {
         errorCheck() {
-            if(eventId == '')
-                throw new ThirioEventsException('No event is selected')
+            if ( eventId == '' )
+                throw new ThirioEventsException( 'No event is selected' )
 
             dbcon.registerStudent( studentId, Integer.parseInt( eventId ) )
         }

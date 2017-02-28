@@ -139,6 +139,25 @@ class DatabaseConnection {
         }
     }
 
+    static Student[] getEventStatus( Integer id, String status ) {
+        Sql conn = connectSql()
+        try {
+            String query = "SELECT * FROM ${SCHEMA}.tbl_students WHERE id IN " +
+                    "(SELECT studentid FROM ${SCHEMA}.tbl_register WHERE eventid=:eventId AND status=:status)"
+            def req = conn.rows( query, [eventId: id, status: status] )
+            conn.close()
+
+            Student[] student = mapper.readValue( mapper.writeValueAsString( req ), Student[] )
+            student.each {
+                it.status = status
+            }
+            student
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
+    }
+
+    //Stduent methods
     static String createStudent( Student student ) {
         Sql conn = connectSql()
         try {
@@ -159,7 +178,6 @@ class DatabaseConnection {
         }
     }
 
-    //Stduent methods
     static Boolean createStudents( MultipartFile file ) {
         Sql conn = connectSql()
         try {
@@ -221,7 +239,7 @@ class DatabaseConnection {
             conn.close()
             Student[] students = mapper.readValue( mapper.writeValueAsString( req ), Student[] )
             students = students.toSorted { a, b ->
-                a.lastName <=> b.lastName
+                a.lastName <=> b.lastName ?: a.firstName <=> b.firstName
             }
 
             students
