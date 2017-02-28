@@ -88,7 +88,7 @@ class DatabaseConnection {
                 Map params = [:]
                 if ( name != '' ) {
                     params.put( 'name', '%' + name + '%' )
-                    query += ' name=:name'
+                    query += ' LOWER(name)=LOWER(:name)'
                     firstInsert = false
                 }
 
@@ -161,7 +161,6 @@ class DatabaseConnection {
 
     //Stduent methods
     static Boolean createStudents( MultipartFile file ) {
-        //TODO: Populate tbl_students using CSV file
         Sql conn = connectSql()
         try {
             File newFile = new File( '/tmp/' + file.getOriginalFilename() )
@@ -195,25 +194,25 @@ class DatabaseConnection {
                 query += ' WHERE'
                 if ( lastName != '' ) {
                     params.put( 'lastName', '%' + lastName + '%' )
-                    query += " lastname LIKE :lastName"
+                    query += " LOWER(lastname) LIKE LOWER(:lastName)"
                     firstInsert = false
                 }
 
                 if ( firstName != '' ) {
                     params.put( 'firstName', '%' + firstName + '%' )
-                    query += firstInsert ? " firstname LIKE :firstName" : " AND firstname LIKE :firstName"
+                    query += firstInsert ? " LOWER(firstname) LIKE LOWER(:firstName)" : " AND LOWER(firstname) LIKE LOWER(:firstName)"
                     firstInsert = false
                 }
 
                 if ( college != '' ) {
                     params.put( 'college', college )
-                    query += firstInsert ? " college=:college" : " AND college=:college"
+                    query += firstInsert ? " LOWER(college)=LOWER(:college)" : " AND LOWER(college)=LOWER(:college)"
                     firstInsert = false
                 }
 
                 if ( course != '' ) {
                     params.put( 'course', course )
-                    query += firstInsert ? " course=:course" : " AND course=:course"
+                    query += firstInsert ? " LOWER(course)=LOWER(:course)" : " AND LOWER(course)=LOWER(:course)"
                 }
                 req = conn.rows( query, params )
             } else {
@@ -221,6 +220,9 @@ class DatabaseConnection {
             }
             conn.close()
             Student[] students = mapper.readValue( mapper.writeValueAsString( req ), Student[] )
+            students = students.toSorted { a, b ->
+                a.lastName <=> b.lastName
+            }
 
             students
         } catch ( Exception e ) {
