@@ -1,6 +1,8 @@
 package com.thirio.repository
 
+import com.thirio.model.Event
 import com.thirio.model.Lottery
+import com.thirio.model.Student
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
@@ -9,5 +11,7 @@ import org.springframework.stereotype.Repository
  */
 @Repository
 interface LotteryRepository extends CrudRepository<Lottery, Integer> {
+
+    Lottery findByEventAndStudent(Event event, Student student)
 
 }

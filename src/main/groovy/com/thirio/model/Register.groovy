@@ -22,6 +22,11 @@ class Register {
     boolean isPresent
 
     @Column
-    Date time
+    @Temporal(TemporalType.TIMESTAMP)
+    Date inTimestamp
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    Date outTimestamp
 
 }

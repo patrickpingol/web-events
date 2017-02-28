@@ -6,8 +6,8 @@ import com.thirio.model.Register
 import com.thirio.model.Student
 import com.thirio.repository.EventRepository
 import com.thirio.repository.LotteryRepository
-import com.thirio.repository.RegisterRepository
-import com.thirio.repository.StudentRepository
+import com.thirio.service.RegisterService
+import com.thirio.service.StudentService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -19,10 +19,10 @@ import javax.annotation.PostConstruct
 class Test {
 
     @Autowired
-    private RegisterRepository registerRepository
+    private RegisterService registerService
 
     @Autowired
-    private StudentRepository studentRepository
+    private StudentService studentService
 
     @Autowired
     private EventRepository eventRepository
@@ -43,14 +43,20 @@ class Test {
                 course: 'BSCS',
                 firstName: 'Lars Joseph',
                 lastName: 'Norlander')
-        student = studentRepository.save(student)
+        student = studentService.createStudent(student)
 
-        Register register = new Register(
-                student: student,
-                event: event,
-                isPresent: true,
-                time: new Date())
-        registerRepository.save(register)
+        println 'shit'
+        println studentService.getStudentList(null, null, null, null)
+
+//        Register register = new Register(
+//                student: student,
+//                event: event,
+//                isPresent: true,
+//                inTimestamp: new Date())
+//        registerRepository.save(register)
+
+        Register register = registerService.registerStudent(student.id, event.id)
+
 
         Lottery lottery = new Lottery(
                 student: student,

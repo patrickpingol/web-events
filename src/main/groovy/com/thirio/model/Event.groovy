@@ -3,10 +3,7 @@ package com.thirio.model
 import groovy.transform.Canonical
 import groovy.transform.ToString
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
+import javax.persistence.*
 import javax.xml.bind.annotation.XmlAccessType
 import javax.xml.bind.annotation.XmlAccessorType
 import javax.xml.bind.annotation.XmlElement
@@ -29,7 +26,12 @@ class Event {
     String name
 
     @Column
-    public Date date
+    @Temporal(TemporalType.DATE)
+    Date date
+
+    @OneToMany
+    @JoinColumn(name = 'id')
+    List<Register> registeredStudents
 
     Event() {
     }
@@ -68,4 +70,5 @@ class Event {
     void setDate( Date date ) {
         this.date = date
     }
+
 }

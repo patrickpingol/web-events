@@ -10,5 +10,10 @@ import org.springframework.stereotype.Repository
 @Repository
 interface EventRepository extends CrudRepository<Event, Integer>{
 
+    List<Event> findByNameLike(String name)
+
+    List<Event> findByDate(Date date)
+
+    List<Event> findByNameLikeAndDate(String name, Date date)
 
 }
