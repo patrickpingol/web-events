@@ -61,7 +61,7 @@ class DatabaseConnection {
                 connInfo.put( 'host', 'localhost' )
                 connInfo.put( 'user', 'postgres' )
                 connInfo.put( 'pass', '' )
-                connInfo.put( 'db', 'db_thirio' )
+                connInfo.put( 'db', 'ereg' )
                 connInfo.put( 'schema', 'events' )
                 schema = 'events'
 
