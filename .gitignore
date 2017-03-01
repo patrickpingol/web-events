@@ -1,5 +1,4 @@
 .DS_Store
-target/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
@@ -15,12 +14,6 @@ target/
 *.iws
 *.iml
 *.ipr
+target/
 
-### NetBeans ###
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
 /database.json
