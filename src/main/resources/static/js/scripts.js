@@ -163,15 +163,20 @@ $(document).ready(function () {
             )
             return
         }
-
         $.ajax({
             url: '/api/lottery/draw?eventId=' + id,
             method: 'GET',
             success: function (data) {
+                var randomNum = 1 + Math.floor(Math.random() * 4);
                 $('div[name="winner"]').html(
-                    '<h2 class="display-3">' + data.message.firstName + ' ' + data.message.lastName + '</h2>' +
-                    '<p class="lead">' + data.message.id + '</p>'
+                    '<img src="/images/loading/' + randomNum + '.gif" class="img-fluid">'
                 )
+                setTimeout(function () {
+                    $('div[name="winner"]').html(
+                        '<h2 class="display-3">' + data.message.firstName + ' ' + data.message.lastName + '</h2>' +
+                        '<p class="lead">' + data.message.id + '</p>'
+                    )
+                }, 1500)
             },
             error: function (data) {
                 $('div[name="winner"]').html(
