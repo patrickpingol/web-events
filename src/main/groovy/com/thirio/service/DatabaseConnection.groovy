@@ -79,7 +79,7 @@ class DatabaseConnection {
         Sql conn = connectSql()
         try {
             String query = "INSERT INTO ${schema}.tbl_events(name, date) VALUES (:name, :date)"
-            def req = conn.executeInsert( query, [name: event.name, date: event.date] )
+            def req = conn.executeInsert( query, [name: event.name.toUpperCase(), date: event.date] )
             conn.close()
 
             Integer.parseInt( req[0][0].toString() )
@@ -176,9 +176,9 @@ class DatabaseConnection {
                     "(:id, :lastName, :firstName, :college, :course) " +
                     "ON CONFLICT DO NOTHING"
             def params = [id       : student.id,
-                          lastName : student.lastName,
-                          firstName: student.firstName,
-                          college  : student.college,
+                          lastName : student.lastName.toUpperCase(),
+                          firstName: student.firstName.toUpperCase(),
+                          college  : student.college.toUpperCase(),
                           course   : student.course]
             def req = conn.executeInsert( query, params )
             conn.close()
@@ -202,7 +202,7 @@ class DatabaseConnection {
 
             conn.withBatch( allRows.size(), query ) { ps ->
                 allRows.each { str ->
-                    ps.addBatch( str[0], str[1], str[2], str[3], str[4] )
+                    ps.addBatch( str[0], str[1].toUpperCase(), str[2].toUpperCase(), str[3].toUpperCase(), str[4] )
                 }
             }
 
@@ -250,7 +250,7 @@ class DatabaseConnection {
             conn.close()
             Student[] students = mapper.readValue( mapper.writeValueAsString( req ), Student[] )
             students = students.toSorted { a, b ->
-                a.lastName <=> b.lastName ?: a.firstName <=> b.firstName
+                a.lastName <=> b.lastName ?: a.firstName <=> b.firstName ?: a.id <=> b.id
             }
 
             students
