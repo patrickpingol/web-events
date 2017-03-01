@@ -107,7 +107,7 @@ class ApiController {
                     String course
     ) {
         errorCheck() {
-            dbcon.getStudentList( lastName, firstName, college, course )
+            dbcon.getStudentList( id, lastName, firstName, college, course )
         }
     }
 
