@@ -19,8 +19,8 @@ class WebController {
     String homePage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
-            model.addAttribute( 'title', event.name + ' - EVENTS' )
-            model.addAttribute( 'eventName', event.name )
+            model.addAttribute( 'title', event.name.toUpperCase() + ' - EVENTS' )
+            model.addAttribute( 'eventName', event.name.toUpperCase() )
             model.addAttribute( 'eventDate', event.date )
         } else {
             Event[] events = dbcon.getEventList( '', '' )
@@ -35,7 +35,7 @@ class WebController {
     String createEventPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
-            model.addAttribute( 'title', event.name + ' - EVENTS' )
+            model.addAttribute( 'title', event.name.toUpperCase() + ' - EVENTS' )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
         }
@@ -47,7 +47,7 @@ class WebController {
     String editEventPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
-            model.addAttribute( 'title', event.name + ' - EVENTS' )
+            model.addAttribute( 'title', event.name.toUpperCase() + ' - EVENTS' )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
         }
@@ -63,7 +63,7 @@ class WebController {
     String editStatusPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
-            model.addAttribute( 'title', event.name + ' - EVENTS' )
+            model.addAttribute( 'title', event.name.toUpperCase() + ' - EVENTS' )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
         }
@@ -79,7 +79,7 @@ class WebController {
                           @RequestParam( required = false, defaultValue = '' ) String message ) {
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
-            model.addAttribute( 'title', event.name + ' - EVENTS' )
+            model.addAttribute( 'title', event.name.toUpperCase() + ' - EVENTS' )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
         }
@@ -97,7 +97,7 @@ class WebController {
                            @RequestParam( required = false, defaultValue = '' ) String message ) {
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
-            model.addAttribute( 'title', event.name + ' - EVENTS' )
+            model.addAttribute( 'title', event.name.toUpperCase() + ' - EVENTS' )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
         }
@@ -119,7 +119,7 @@ class WebController {
 
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
-            model.addAttribute( 'title', event.name + ' - EVENTS' )
+            model.addAttribute( 'title', event.name.toUpperCase() + ' - EVENTS' )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
         }
@@ -135,7 +135,7 @@ class WebController {
 
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
-            model.addAttribute( 'title', event.name + ' - EVENTS' )
+            model.addAttribute( 'title', event.name.toUpperCase() + ' - EVENTS' )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
         }
@@ -147,7 +147,7 @@ class WebController {
     String lotteryPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
             Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
-            model.addAttribute( 'title', event.name + ' - EVENTS' )
+            model.addAttribute( 'title', event.name.toUpperCase() + ' - EVENTS' )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
         }
