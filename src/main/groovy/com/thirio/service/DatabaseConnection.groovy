@@ -217,17 +217,17 @@ class DatabaseConnection {
         try {
             String query = "SELECT * FROM ${schema}.tbl_students"
             def req
-            if ( lastName != '' || firstName != '' || college != '' || course != '' ) {
+            if ( id != '' || lastName != '' || firstName != '' || college != '' || course != '' ) {
                 Map<String, String> params = [:]
                 Boolean firstInsert = true
                 query += ' WHERE'
-                if ( lastName != '' ) {
+                if ( id != '' ) {
                     params.put( 'id', '%' + id + '%' )
                     query += " LOWER(id) LIKE LOWER(:id)"
                     firstInsert = false
                 }
 
-                if ( firstName != '' ) {
+                if ( lastName != '' ) {
                     params.put( 'lastName', '%' + lastName + '%' )
                     query += firstInsert ? " LOWER(lastname) LIKE LOWER(:lastName)" : " AND LOWER(lastname) LIKE LOWER(:lastName)"
                     firstInsert = false
