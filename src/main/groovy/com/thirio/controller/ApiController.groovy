@@ -96,6 +96,8 @@ class ApiController {
     @RequestMapping( value = '/student', method = [RequestMethod.GET] )
     static ResponseEntity getStudentList(
             @RequestParam( required = false, defaultValue = '' )
+                    String id,
+            @RequestParam( required = false, defaultValue = '' )
                     String lastName,
             @RequestParam( required = false, defaultValue = '' )
                     String firstName,

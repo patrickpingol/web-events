@@ -212,7 +212,7 @@ class DatabaseConnection {
         }
     }
 
-    static Student[] getStudentList( String lastName, String firstName, String college, String course ) {
+    static Student[] getStudentList( String id, String lastName, String firstName, String college, String course ) {
         Sql conn = connectSql()
         try {
             String query = "SELECT * FROM ${schema}.tbl_students"
@@ -222,8 +222,14 @@ class DatabaseConnection {
                 Boolean firstInsert = true
                 query += ' WHERE'
                 if ( lastName != '' ) {
+                    params.put( 'id', '%' + id + '%' )
+                    query += " LOWER(id) LIKE LOWER(:id)"
+                    firstInsert = false
+                }
+
+                if ( firstName != '' ) {
                     params.put( 'lastName', '%' + lastName + '%' )
-                    query += " LOWER(lastname) LIKE LOWER(:lastName)"
+                    query += firstInsert ? " LOWER(lastname) LIKE LOWER(:lastName)" : " AND LOWER(lastname) LIKE LOWER(:lastName)"
                     firstInsert = false
                 }
 
