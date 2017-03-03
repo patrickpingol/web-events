@@ -60,7 +60,7 @@ class DatabaseConnection {
             } else {
                 connInfo.put( 'host', 'localhost' )
                 connInfo.put( 'user', 'postgres' )
-                connInfo.put( 'pass', '' )
+                connInfo.put( 'pass', 'password' )
                 connInfo.put( 'db', 'ereg' )
                 connInfo.put( 'schema', 'events' )
                 schema = 'events'
