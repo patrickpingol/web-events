@@ -189,8 +189,8 @@ $(document).ready(function () {
     if ($('h1[name="count"]').length) {
         var id = Cookies.get("EVENTID")
         if (id == null || id == 'undefined') {
-            $('h1[name="count"]').html('No event selected.')
-            $('span[name="count-label"]').html('')
+            $('h1[name="count"]').html('')
+            $('span[name="count-label"]').html('No event selected.')
             return
         }
         setInterval(function () {
