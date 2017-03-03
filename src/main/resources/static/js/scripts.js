@@ -185,6 +185,31 @@ $(document).ready(function () {
             }
         })
     })
+
+    if ($('h1[name="count"]').length) {
+        var id = Cookies.get("EVENTID")
+        setInterval(function () {
+            $.ajax({
+                url: '/api/live/' + id,
+                method: 'GET',
+                success: function (data) {
+                    $('h1[name="count"]').html(
+                        data.message
+                    )
+                    if(data.message > 1){
+                        $('span[name="count-label"]').html(
+                            'ATTENDEES'
+                        )
+                    }
+                },
+                error: function (data) {
+                    $('h1[name="count"]').html(
+                        data.responseJSON.message
+                    )
+                }
+            })
+        }, 5000)
+    }
 });
 
 $(function () {

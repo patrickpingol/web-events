@@ -371,4 +371,23 @@ class DatabaseConnection {
             throw new ThirioEventsException( e.message )
         }
     }
+
+    //Added feature
+    static Integer liveAttendeesCount( Integer id ) {
+        Sql conn = connectSql()
+        try {
+            String query = "SELECT COUNT(*) FROM (" +
+                    "SELECT DISTINCT ON (student.id) student.*, register.status " +
+                    "FROM ${schema}.tbl_register register, ${schema}.tbl_students student " +
+                    "WHERE student.id = register.studentid AND register.eventid = :eventId " +
+                    "ORDER BY student.id, register.time DESC) as b " +
+                    "WHERE status='IN';"
+            def req = conn.firstRow( query, [eventId: id] )
+            conn.close()
+
+            Integer.parseInt( req[0].toString() )
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
+    }
 }

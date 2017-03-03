@@ -165,6 +165,16 @@ class ApiController {
         }
     }
 
+    @RequestMapping( value = '/live/{id}', method = [RequestMethod.GET] )
+    static ResponseEntity getLiveCount(
+            @PathVariable
+                    Integer id
+    ) {
+        errorCheck() {
+            dbcon.liveAttendeesCount( id )
+        }
+    }
+
     private static ResponseEntity errorCheck( def closure ) {
         try {
             def resp = closure()

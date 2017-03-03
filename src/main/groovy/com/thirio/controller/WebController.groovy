@@ -58,7 +58,6 @@ class WebController {
         return 'edit-event'
     }
 
-    //TODO: GET EVENT STATUS (Number of attendees)
     @RequestMapping( value = '/event/status' )
     String editStatusPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
@@ -153,5 +152,17 @@ class WebController {
         }
 
         return 'lottery'
+    }
+
+    @RequestMapping(value='/live/count')
+    String liveCountPage(Model model, @CookieValue(value = 'EVENTID', defaultValue = '') String eventId){
+        if ( eventId != '' ) {
+            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            model.addAttribute( 'title', event.name.toUpperCase() + ' - EVENTS' )
+        } else {
+            model.addAttribute( 'title', 'EVENTS' )
+        }
+
+        return 'live-count'
     }
 }
