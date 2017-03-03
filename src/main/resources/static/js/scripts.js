@@ -188,6 +188,11 @@ $(document).ready(function () {
 
     if ($('h1[name="count"]').length) {
         var id = Cookies.get("EVENTID")
+        if (id == null || id == 'undefined') {
+            $('h1[name="count"]').html('No event selected.')
+            $('span[name="count-label"]').html('')
+            return
+        }
         setInterval(function () {
             $.ajax({
                 url: '/api/live/' + id,
@@ -196,7 +201,7 @@ $(document).ready(function () {
                     $('h1[name="count"]').html(
                         data.message
                     )
-                    if(data.message > 1){
+                    if (data.message > 1) {
                         $('span[name="count-label"]').html(
                             'ATTENDEES'
                         )
