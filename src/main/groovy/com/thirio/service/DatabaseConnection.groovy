@@ -153,15 +153,17 @@ class DatabaseConnection {
     static Student[] getEventStatus( Integer id, String status ) {
         Sql conn = connectSql()
         try {
-            String query = "SELECT * FROM ${schema}.tbl_students WHERE id IN " +
-                    "(SELECT studentid FROM ${schema}.tbl_register WHERE eventid=:eventId AND status=:status)"
+            String query = "SELECT * FROM (" +
+                    "SELECT DISTINCT ON (student.id) student.*, register.status " +
+                    "FROM ${schema}.tbl_register register, ${schema}.tbl_students student " +
+                    "WHERE student.id = register.studentid AND register.eventid = :eventId " +
+                    "ORDER BY student.id, register.time DESC) as b " +
+                    "WHERE status=:status ORDER BY lastname, firstname, id;"
             def req = conn.rows( query, [eventId: id, status: status] )
             conn.close()
 
             Student[] student = mapper.readValue( mapper.writeValueAsString( req ), Student[] )
-            student.each {
-                it.status = status
-            }
+
             student
         } catch ( Exception e ) {
             throw new ThirioEventsException( e.message )
@@ -205,6 +207,8 @@ class DatabaseConnection {
                     ps.addBatch( str[0], str[1].toUpperCase(), str[2].toUpperCase(), str[3].toUpperCase(), str[4] )
                 }
             }
+
+            conn.close()
 
             true
         } catch ( Exception e ) {
@@ -324,8 +328,10 @@ class DatabaseConnection {
                         status   : student.status,
                         time     : dateStr
                 ]
-                if ( !conn.execute( query, params ) )
+                if ( !conn.execute( query, params ) ) {
+                    conn.close()
                     return student
+                }
             } else {
                 throw new ThirioEventsException( 'Invalid AUF Student ID.' )
             }
@@ -354,8 +360,10 @@ class DatabaseConnection {
                 if ( !conn.execute(
                         "INSERT INTO ${schema}.tbl_lottery(studentid, eventid) VALUES (:studentId, :eventId)",
                         [studentId: student.id, eventId: eventId]
-                ) )
+                ) ) {
+                    conn.close()
                     return student
+                }
             } else {
                 throw new ThirioEventsException( 'All attendees have been drawn.' )
             }
