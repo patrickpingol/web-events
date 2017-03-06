@@ -186,6 +186,11 @@ $(document).ready(function () {
         })
     })
 
+    $('button[name="reset"]').on('click', function () {
+        $(':input').not(':button', 'select').val('');
+        $('select').prop('selectedIndex',0)
+    })
+
     if ($('h1[name="count"]').length) {
         var id = Cookies.get("EVENTID")
         if (id == null || id == 'undefined') {
