@@ -188,7 +188,7 @@ $(document).ready(function () {
 
     $('button[name="reset"]').on('click', function () {
         $(':input').not(':button', 'select').val('');
-        $('select').prop('selectedIndex',0)
+        $('select').prop('selectedIndex', 0)
     })
 
     if ($('h1[name="count"]').length) {
@@ -234,7 +234,7 @@ $(function () {
 function submitAttendance() {
     var studId = $('input[name="idnum"]').val()
     $.ajax({
-        url: '/api/student/register?studentId=' + studId,
+        url: '/api/student/register?studentId=' + studId + '&notEligible=' + $('input[name="not-eligible"]').is(':checked'),
         method: 'POST',
         dataType: 'json',
         success: function (data) {
@@ -253,6 +253,7 @@ function submitAttendance() {
         }
     })
     $('input[name="idnum"]').val('')
+    $('input[name="not-eligible"]').prop('checked', false)
 }
 
 function showDeleteModal(eventId, eventName) {

@@ -144,6 +144,8 @@ class ApiController {
     static ResponseEntity registerStudent(
             @RequestParam
                     String studentId,
+            @RequestParam( required = false, defaultValue = 'false' )
+                    Boolean notEligible,
             @CookieValue( name = 'EVENTID', defaultValue = '' )
                     String eventId
     ) {
@@ -151,7 +153,7 @@ class ApiController {
             if ( eventId == '' )
                 throw new ThirioEventsException( 'No event is selected' )
 
-            dbcon.registerStudent( studentId, Integer.parseInt( eventId ) )
+            dbcon.registerStudent( studentId, Integer.parseInt( eventId ), notEligible )
         }
     }
 

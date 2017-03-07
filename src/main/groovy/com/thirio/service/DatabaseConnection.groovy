@@ -298,7 +298,7 @@ class DatabaseConnection {
     }
 
     //Register methods
-    static Student registerStudent( String studentId, Integer eventId ) {
+    static Student registerStudent( String studentId, Integer eventId, Boolean notEligible ) {
         Sql conn = connectSql()
         try {
             Student student = getStudentById( studentId )
@@ -329,6 +329,16 @@ class DatabaseConnection {
                         time     : dateStr
                 ]
                 if ( !conn.execute( query, params ) ) {
+                    if ( notEligible && student.status == 'IN' ) {
+                        conn.execute( "INSERT INTO ${schema}.tbl_lottery (studentid, eventid) " +
+                                "SELECT :studentId, :eventId " +
+                                "WHERE NOT EXISTS (SELECT * FROM ${schema}.tbl_lottery " +
+                                "WHERE studentid=:studentId AND eventid=:eventId)",
+                                [studentId: studentId, eventId: eventId] )
+                    } else {
+                        conn.execute( "DELETE FROM ${schema}.tbl_lottery WHERE studentid=:studentId " +
+                                "AND eventid=:eventId", [studentId: studentId, eventId: eventId] )
+                    }
                     conn.close()
                     return student
                 }
