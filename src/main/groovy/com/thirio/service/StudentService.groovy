@@ -35,10 +35,11 @@ class StudentService {
         studentRepository.save(students)
     }
 
-    List<Student> getStudentList(String lastName, String firstName, String college, String course) {
+    List<Student> getStudentList(String id, String lastName, String firstName, String college, String course) {
         ExampleMatcher studentMatcher = ExampleMatcher.matching()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
         (List<Student>) studentRepository.findAll(Example.of(new Student(
+                id: id,
                 lastName: lastName,
                 firstName: firstName,
                 college: college,

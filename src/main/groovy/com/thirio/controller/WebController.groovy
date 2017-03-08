@@ -1,27 +1,35 @@
 package com.thirio.controller
 
 import com.thirio.model.Event
-import com.thirio.service.DatabaseConnection
+import com.thirio.service.EventService
+import groovy.transform.CompileStatic
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+
 /**
  * @author patrick.pingol
  */
-//@Controller
+@Controller
+@CompileStatic
+@SuppressWarnings("GroovyUnusedDeclaration")
 class WebController {
-    private DatabaseConnection dbcon = new DatabaseConnection()
+
+    @Autowired
+    EventService eventService
 
     @RequestMapping( value = ['', '/', '/index'] )
     String homePage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
-            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            Event event = eventService.getEvent(Integer.parseInt(eventId.toString()))
             model.addAttribute( 'title', event.name.toUpperCase() )
             model.addAttribute( 'eventName', event.name.toUpperCase() )
             model.addAttribute( 'eventDate', event.date )
         } else {
-            Event[] events = dbcon.getEventList( '', '' )
+            Event[] events = eventService.getEventList('', null)
             model.addAttribute( 'title', 'EVENTS' )
             model.addAttribute( 'events', events )
         }
@@ -32,7 +40,7 @@ class WebController {
     @RequestMapping( value = '/event/create' )
     String createEventPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
-            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            Event event = eventService.getEvent(Integer.parseInt(eventId.toString()))
             model.addAttribute( 'title', event.name.toUpperCase() )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
@@ -44,13 +52,13 @@ class WebController {
     @RequestMapping( value = '/event/edit' )
     String editEventPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
-            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            Event event = eventService.getEvent(Integer.parseInt(eventId.toString()))
             model.addAttribute( 'title', event.name.toUpperCase() )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
         }
 
-        Event[] events = dbcon.getEventList( '', '' )
+        Event[] events = eventService.getEventList('', null)
         model.addAttribute( 'events', events )
 
         return 'edit-event'
@@ -59,13 +67,13 @@ class WebController {
     @RequestMapping( value = '/event/status' )
     String editStatusPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
-            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            Event event = eventService.getEvent(Integer.parseInt(eventId.toString()))
             model.addAttribute( 'title', event.name.toUpperCase() )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
         }
 
-        Event[] events = dbcon.getEventList( '', '' )
+        Event[] events = eventService.getEventList('', null)
         model.addAttribute( 'events', events )
 
         return 'event-status'
@@ -75,7 +83,7 @@ class WebController {
     String csvUploadPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId,
                           @RequestParam( required = false, defaultValue = '' ) String message ) {
         if ( eventId != '' ) {
-            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            Event event = eventService.getEvent(Integer.parseInt(eventId.toString()))
             model.addAttribute( 'title', event.name.toUpperCase() )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
@@ -93,7 +101,7 @@ class WebController {
     String attendancePage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId,
                            @RequestParam( required = false, defaultValue = '' ) String message ) {
         if ( eventId != '' ) {
-            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            Event event = eventService.getEvent(Integer.parseInt(eventId.toString()))
             model.addAttribute( 'title', event.name.toUpperCase() )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
@@ -115,7 +123,7 @@ class WebController {
             model.addAttribute( 'create', false )
 
         if ( eventId != '' ) {
-            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            Event event = eventService.getEvent(Integer.parseInt(eventId.toString()))
             model.addAttribute( 'title', event.name.toUpperCase() )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
@@ -131,7 +139,7 @@ class WebController {
     ) {
 
         if ( eventId != '' ) {
-            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            Event event = eventService.getEvent(Integer.parseInt(eventId.toString()))
             model.addAttribute( 'title', event.name.toUpperCase() )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
@@ -143,7 +151,7 @@ class WebController {
     @RequestMapping( value = '/lottery' )
     String lotteryPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
-            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            Event event = eventService.getEvent(Integer.parseInt(eventId.toString()))
             model.addAttribute( 'title', event.name.toUpperCase() )
         } else {
             model.addAttribute( 'title', 'EVENTS' )
@@ -155,7 +163,7 @@ class WebController {
     @RequestMapping( value = '/live/count' )
     String liveCountPage( Model model, @CookieValue( value = 'EVENTID', defaultValue = '' ) String eventId ) {
         if ( eventId != '' ) {
-            Event event = dbcon.getEvent( Integer.parseInt( eventId.toString() ) )
+            Event event = eventService.getEvent(Integer.parseInt(eventId.toString()))
             model.addAttribute( 'title', event.name.toUpperCase() )
         } else {
             model.addAttribute( 'title', 'EVENTS' )

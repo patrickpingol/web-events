@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service
 /**
  * Created by lars.norlander on 2/28/17.
  */
+
+// TODO: Implement liveAttendeesCount
 @Service
 class RegisterService {
 
@@ -25,7 +27,8 @@ class RegisterService {
     @Autowired
     private EventRepository eventRepository
 
-    Register registerStudent(String studentId, Integer eventId) {
+    // TODO: Implement not Eligible logic
+    Register registerStudent(String studentId, Integer eventId, Boolean notEligible) {
         Student student = studentRepository.findOne(studentId)
         if (!student) throw new InvalidArgumentException("No such student.")
 

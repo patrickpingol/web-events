@@ -8,14 +8,16 @@ import org.springframework.stereotype.Service
 /**
  * Created by lars.norlander on 2/28/17.
  */
+
+// TODO: Implement getEventStatus
 @Service
 class EventService {
 
     @Autowired
     private EventRepository eventRepository
 
-    Event createEvent(Event event){
-        eventRepository.save(event)
+    Integer createEvent(Event event){
+        eventRepository.save(event).id
     }
 
     List<Event> getEventList(String name, Date date){
@@ -29,11 +31,13 @@ class EventService {
         eventRepository.findOne(id)
     }
 
-    void deleteEvent(Integer id){
+    Boolean deleteEvent(Integer id){
         eventRepository.delete(id)
+        true
     }
 
-    void deleteEvent(Event event){
+    Boolean deleteEvent(Event event){
         eventRepository.delete(event)
+        true
     }
 }
