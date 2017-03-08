@@ -184,6 +184,13 @@ class ApiController {
         }
     }
 
+    @RequestMapping( value = '/dbdump', method = [RequestMethod.GET] )
+    static ResponseEntity dbDump() {
+        errorCheck() {
+            dbcon.dbDump()
+        }
+    }
+
     private static ResponseEntity errorCheck( def closure ) {
         try {
             def resp = closure()

@@ -415,6 +415,9 @@ class DatabaseConnection {
             if ( tableName == 'tbl_events' )
                 query += ' RESTART IDENTITY'
             conn.execute( query )
+            conn.close()
+
+            true
         } catch ( Exception e ) {
             throw new ThirioEventsException( e.message )
         }
@@ -439,10 +442,13 @@ class DatabaseConnection {
     static void backupDatabase() {
         Sql conn = connectSql()
         try {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern( 'yyyy-MM-dd' )
+            DateTime dateInPH = DateTime.now( DateTimeZone.forID( 'Asia/Manila' ) )
+            String dateStr = formatter.print( dateInPH ).toLowerCase()
             String query = "SELECT id, name FROM ${schema}.tbl_events"
             def req = conn.rows( query )
             req.each {
-                String path = "backup/${it.name}"
+                String path = "backup/${dateStr}/${it.name}"
                 File folder = new File( path )
                 if ( !folder.exists() ) {
                     if ( folder.mkdirs() ) {
@@ -454,12 +460,47 @@ class DatabaseConnection {
                     writeCsv( path, 'tbl_register', (String) it.name )
                 }
             }
-            writeCsv( 'backup', 'tbl_students' )
-            writeCsv( 'backup', 'tbl_events' )
+            writeCsv( "backup/${dateStr}", 'tbl_students' )
+            writeCsv( "backup/${dateStr}", 'tbl_events' )
             conn.close()
         } catch ( Exception e ) {
             throw new ThirioEventsException( e.message )
         }
+    }
+
+    static void dbDump() {
+        Sql conn = connectSql()
+        String query, csv
+        CSVWriter writer
+        List<String[]> data
+        DateTimeFormatter formatter = DateTimeFormat.forPattern( 'yyyy-MM-dd' )
+        DateTime dateInPH = DateTime.now( DateTimeZone.forID( 'Asia/Manila' ) )
+        String dateStr = formatter.print( dateInPH ).toLowerCase()
+        File folder = new File( "dump/${dateStr}" )
+        if ( !folder.exists() )
+            folder.mkdirs()
+
+        ['tbl_students',
+         'tbl_events',
+         'tbl_register',
+         'tbl_lottery'].each {
+            query = "SELECT * FROM ${schema}.${it}"
+            data = new ArrayList<String[]>()
+            conn.rows( query ).each {
+                String[] strArray = new String[it.values().size()]
+                int i = 0
+                it.values().each {
+                    strArray[i] = String.valueOf( it )
+                    i++
+                }
+                data.add( strArray )
+            }
+            csv = "dump/${dateStr}/${it}.csv"
+            writer = new CSVWriter( new FileWriter( csv ) )
+            writer.writeAll( data )
+            writer.close()
+        }
+        conn.close()
     }
 
     private static void writeCsv( String path, String tableName, String eventName = '', String college = '' ) {
@@ -502,5 +543,6 @@ class DatabaseConnection {
 
         writer.writeAll( data )
         writer.close()
+        conn.close()
     }
 }
