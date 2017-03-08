@@ -177,6 +177,13 @@ class ApiController {
         }
     }
 
+    @RequestMapping( value = '/backup/all', method = [RequestMethod.GET] )
+    static ResponseEntity backupTables() {
+        errorCheck() {
+            dbcon.backupDatabase()
+        }
+    }
+
     private static ResponseEntity errorCheck( def closure ) {
         try {
             def resp = closure()

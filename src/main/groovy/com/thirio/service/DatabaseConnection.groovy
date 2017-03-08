@@ -1,6 +1,7 @@
 package com.thirio.service
 
 import au.com.bytecode.opencsv.CSVReader
+import au.com.bytecode.opencsv.CSVWriter
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.AnnotationIntrospector
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -399,5 +400,107 @@ class DatabaseConnection {
         } catch ( Exception e ) {
             throw new ThirioEventsException( e.message )
         }
+    }
+
+    //Database Controls
+    static Boolean clearTable( String tableName ) {
+        Sql conn = connectSql()
+        try {
+            String[] tables = ['tbl_students', 'tbl_register', 'tbl_lottery', 'tbl_events']
+            if ( !tables.contains( tableName ) ) {
+                throw new ThirioEventsException( 'Table does not exist.' )
+            }
+
+            String query = "TRUNCATE TABLE ${schema}.${tableName}"
+            if ( tableName == 'tbl_events' )
+                query += ' RESTART IDENTITY'
+            conn.execute( query )
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
+    }
+
+    static Boolean clearAllTable() {
+        Sql conn = connectSql()
+        try {
+            conn.execute( "TRUNCATE TABLE ${schema}.tbl_students, " +
+                    "${schema}.tbl_events, " +
+                    "${schema}.tbl_lottery, " +
+                    "${schema}.tbl_register" )
+
+            conn.close()
+
+            true
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
+    }
+
+    static void backupDatabase() {
+        Sql conn = connectSql()
+        try {
+            String query = "SELECT id, name FROM ${schema}.tbl_events"
+            def req = conn.rows( query )
+            req.each {
+                String path = "backup/${it.name}"
+                File folder = new File( path )
+                if ( !folder.exists() ) {
+                    if ( folder.mkdirs() ) {
+                        writeCsv( path, 'tbl_lottery', (String) it.name )
+                        writeCsv( path, 'tbl_register', (String) it.name )
+                    }
+                } else {
+                    writeCsv( path, 'tbl_lottery', (String) it.name )
+                    writeCsv( path, 'tbl_register', (String) it.name )
+                }
+            }
+            writeCsv( 'backup', 'tbl_students' )
+            writeCsv( 'backup', 'tbl_events' )
+            conn.close()
+        } catch ( Exception e ) {
+            throw new ThirioEventsException( e.message )
+        }
+    }
+
+    private static void writeCsv( String path, String tableName, String eventName = '', String college = '' ) {
+        Sql conn = connectSql()
+        String query
+        String csv = college != '' && tableName == 'tbl_students' ?
+                "$path/${tableName}_${college}.csv" :
+                "$path/${tableName}.csv"
+        CSVWriter writer = new CSVWriter( new FileWriter( csv ) )
+        List<String[]> data = new ArrayList<String[]>()
+
+        if ( tableName == 'tbl_students' || tableName == 'tbl_events' ) {
+            query = "SELECT * FROM ${schema}.${tableName}"
+            query += college != '' && tableName == 'tbl_students' ?
+                    " WHERE college='$college'" :
+                    ''
+        } else if ( tableName == 'tbl_lottery' )
+            query = "SELECT event.name, student.* " +
+                    "FROM ${schema}.tbl_lottery lottery " +
+                    "INNER JOIN ${schema}.tbl_students student ON student.id = lottery.studentid " +
+                    "INNER JOIN ${schema}.tbl_events event ON event.id = lottery.eventid " +
+                    "WHERE lottery.eventid = (SELECT id FROM ${schema}.tbl_events WHERE name='$eventName');"
+        else if ( tableName == 'tbl_register' )
+            query = "SELECT * FROM (SELECT DISTINCT ON (student.id) student.*, register.status " +
+                    "FROM ${schema}.tbl_register register, ${schema}.tbl_students student " +
+                    "WHERE student.id = register.studentid AND register.eventid = " +
+                    "(SELECT id FROM ${schema}.tbl_events WHERE name='$eventName') " +
+                    "ORDER BY student.id, register.time DESC) as b " +
+                    "ORDER BY lastname, firstname, id;"
+
+        conn.rows( query ).each {
+            String[] strArray = new String[it.values().size()]
+            int i = 0
+            it.values().each {
+                strArray[i] = String.valueOf( it )
+                i++
+            }
+            data.add( strArray )
+        }
+
+        writer.writeAll( data )
+        writer.close()
     }
 }
