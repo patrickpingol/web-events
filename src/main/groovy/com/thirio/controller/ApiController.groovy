@@ -191,6 +191,26 @@ class ApiController {
         }
     }
 
+    @RequestMapping( value = '/table/clear', method = [RequestMethod.POST] )
+    static ResponseEntity clearTable(
+            @RequestParam
+                    String table
+    ) {
+        errorCheck() {
+            dbcon.clearTable( table )
+        }
+    }
+
+    @RequestMapping( value = '/table/clear-all', method = [RequestMethod.POST] )
+    static ResponseEntity clearAllTable(
+            @RequestParam
+                    String table
+    ) {
+        errorCheck() {
+            dbcon.clearAllTable()
+        }
+    }
+
     private static ResponseEntity errorCheck( def closure ) {
         try {
             def resp = closure()

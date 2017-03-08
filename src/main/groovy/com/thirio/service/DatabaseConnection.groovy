@@ -17,24 +17,16 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
 
+import javax.annotation.PreDestroy
 import java.sql.SQLException
-
 /**
  * @author patrick.pingol
  */
+@Component
 class DatabaseConnection {
-    //local - toro
-    /*private static String host = 'localhost'
-    private static String user = 'patrick.pingol'
-    private static String pass = ''
-    private static String db = 'patrick.pingol'
-    private static String schema = 'events'
-    private static final String connUrl = "jdbc:postgresql://$host:5432/$db"
-    private static final String CONN_DRIVER = 'org.postgresql.Driver'
-    private static ObjectMapper mapper*/
-
     private static String schema = 'events'
     private static ObjectMapper mapper
 
@@ -403,7 +395,7 @@ class DatabaseConnection {
     }
 
     //Database Controls
-    static Boolean clearTable( String tableName ) {
+    static void clearTable( String tableName ) {
         Sql conn = connectSql()
         try {
             String[] tables = ['tbl_students', 'tbl_register', 'tbl_lottery', 'tbl_events']
@@ -423,7 +415,7 @@ class DatabaseConnection {
         }
     }
 
-    static Boolean clearAllTable() {
+    static void clearAllTable() {
         Sql conn = connectSql()
         try {
             conn.execute( "TRUNCATE TABLE ${schema}.tbl_students, " +
@@ -468,6 +460,7 @@ class DatabaseConnection {
         }
     }
 
+    @PreDestroy
     static void dbDump() {
         Sql conn = connectSql()
         String query, csv
